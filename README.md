@@ -22,46 +22,57 @@ A comprehensive web application for analyzing MLB pitch data from Statcast.
 | Data Source | pybaseball (Statcast) + MLB Stats API |
 | Hosting | Railway |
 
-## Quick Start
+## Quick Start (No Docker Required!)
 
 ### Prerequisites
-- Docker Desktop
-- Node.js 24+
-- Python 3.14+
+- Node.js 18+
+- Python 3.10+
 
-### Development
-
-1. Clone the repo:
-```bash
-git clone https://github.com/cretch21/vibe-coded-baseball.git
-cd vibe-coded-baseball
-```
-
-2. Copy environment variables:
-```bash
-cp .env.example .env
-```
-
-3. Start the database:
-```bash
-docker compose up db -d
-```
-
-4. Run the backend:
+### 1. Start the Backend
 ```bash
 cd backend
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+python -m uvicorn app.main:app --port 8000
 ```
 
-5. Run the frontend:
+### 2. Start the Frontend (new terminal)
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-6. Open http://localhost:3000
+### 3. Open the App
+Go to http://localhost:3000
+
+---
+
+## Database Manager
+
+The app uses SQLite (no database server needed). Use these commands to manage your data:
+
+```bash
+cd backend
+
+# Check current database status
+python scripts/db_manager.py status
+
+# Load specific months of 2025 data
+python scripts/db_manager.py april
+python scripts/db_manager.py may
+python scripts/db_manager.py june
+python scripts/db_manager.py july
+python scripts/db_manager.py august
+python scripts/db_manager.py september
+
+# Load custom date range
+python scripts/db_manager.py load --start 2025-07-01 --end 2025-07-31
+
+# Load full 2025 season (takes a while!)
+python scripts/db_manager.py full
+```
+
+The database file is stored at `backend/baseball.db`.
 
 ## Project Structure
 
