@@ -1,20 +1,27 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api import pitchers_router, leaderboards_router, discover_router
+from app.core.database import create_tables
+# Import models to register them with SQLAlchemy
+from app.models import Pitcher, Game, Pitch, SeasonStats  # noqa: F401
+
 app = FastAPI(
     title="Vibe-Coded Baseball API",
     description="MLB Pitch Analytics API powered by Statcast data",
     version="0.1.0",
 )
 
-# CORS configuration
+# Create database tables on startup
+@app.on_event("startup")
+async def startup_event():
+    create_tables()
+
+# CORS configuration - allow all origins for local development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # Next.js dev server
-        "http://127.0.0.1:3000",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],  # Allow all origins in development
+    allow_credentials=False,  # Must be False when using allow_origins=["*"]
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -34,3 +41,9 @@ async def root():
         "docs": "/docs",
         "health": "/health",
     }
+
+
+# Include API routers
+app.include_router(pitchers_router, prefix="/api")
+app.include_router(leaderboards_router, prefix="/api")
+app.include_router(discover_router, prefix="/api")

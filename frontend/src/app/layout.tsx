@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Providers } from "./providers";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "Vibe-Coded Baseball | MLB Pitch Analytics",
@@ -20,11 +23,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-primary-900">
-        <div className="flex flex-col min-h-screen">
-          {/* Header will go here */}
-          <main className="flex-1">{children}</main>
-          {/* Footer will go here */}
-        </div>
+        <Providers>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </Providers>
       </body>
     </html>
   );
