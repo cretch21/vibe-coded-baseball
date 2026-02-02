@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { statsApi, DatabaseStats } from "@/lib/api";
 
 const quickLinks = [
   {
@@ -43,54 +47,77 @@ const quickLinks = [
   },
 ];
 
-export default function Dashboard() {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Hero Section */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">
-          MLB Pitch Analytics
-        </h1>
-        <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-          Explore Statcast data, analyze pitcher performance, and discover
-          statistical insights across the league.
-        </p>
-      </div>
+function formatNumber(num: number): string {
+  if (num >= 1_000_000) {
+    return (num / 1_000_000).toFixed(1) + "M";
+  }
+  if (num >= 1_000) {
+    return (num / 1_000).toFixed(0) + "K";
+  }
+  return num.toLocaleString();
+}
 
-      {/* Quick Links */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        {quickLinks.map((link) => (
-          <Link
-            key={link.title}
-            href={link.href}
-            className="group block p-6 rounded-lg bg-primary-800 border border-primary-700 hover:border-accent transition-all hover:shadow-lg hover:shadow-accent/10"
-          >
-            <div className="text-accent mb-4 group-hover:scale-110 transition-transform">
-              {link.icon}
-            </div>
-            <h2 className="text-xl font-semibold text-white mb-2 group-hover:text-accent transition-colors">
-              {link.title}
-            </h2>
-            <p className="text-gray-400 text-sm">{link.description}</p>
-          </Link>
-        ))}
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return "—";
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+export default function Dashboard() {
+  const [stats, setStats] = useState<DatabaseStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    statsApi.getDatabase()
+      .then(setStats)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <div className="container mx-auto px-4 py-4">
+      {/* Quick Links Card */}
+      <div className="rounded-lg p-4 mb-4 border-2 border-[#E1C825]" style={{ backgroundColor: '#D9D8D8' }}>
+        <h2 className="text-lg font-bold text-black mb-4">Quick Navigation</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {quickLinks.map((link) => (
+            <Link
+              key={link.title}
+              href={link.href}
+              className="group block p-4 rounded bg-white border border-gray-200 hover:border-accent transition-all"
+            >
+              <div className="text-primary-800 mb-2 group-hover:text-accent transition-colors">
+                {link.icon}
+              </div>
+              <h3 className="font-semibold text-gray-900 group-hover:text-accent transition-colors">
+                {link.title}
+              </h3>
+              <p className="text-gray-500 text-sm">{link.description}</p>
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Dashboard Panels */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         {/* What's Happening */}
-        <div className="p-6 rounded-lg bg-primary-800 border border-primary-700">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            <h2 className="text-xl font-semibold text-accent">
+        <div className="rounded-lg p-4 border-2 border-[#E1C825]" style={{ backgroundColor: '#D9D8D8' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 rounded-full bg-[#E1C825] animate-pulse" />
+            <h2 className="text-lg font-bold text-black">
               What&apos;s Happening
             </h2>
           </div>
           <div className="space-y-3">
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-600 text-sm">
               Anomalies and notable changes will appear here once data is loaded.
             </p>
-            <div className="pt-4 border-t border-primary-700">
+            <div className="pt-3 border-t border-gray-300">
               <p className="text-gray-500 text-xs">
                 Tracking velocity changes, new pitches, and performance trends
               </p>
@@ -99,20 +126,20 @@ export default function Dashboard() {
         </div>
 
         {/* This Week in MLB */}
-        <div className="p-6 rounded-lg bg-primary-800 border border-primary-700">
-          <div className="flex items-center gap-2 mb-4">
-            <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="rounded-lg p-4 border-2 border-[#E1C825]" style={{ backgroundColor: '#D9D8D8' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <svg className="w-5 h-5 text-[#183521]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <h2 className="text-xl font-semibold text-accent">
+            <h2 className="text-lg font-bold text-black">
               This Week in MLB
             </h2>
           </div>
           <div className="space-y-3">
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-600 text-sm">
               Weekly summary will appear here once data is loaded.
             </p>
-            <div className="pt-4 border-t border-primary-700">
+            <div className="pt-3 border-t border-gray-300">
               <p className="text-gray-500 text-xs">
                 Auto-generated reports highlighting top performers and trends
               </p>
@@ -121,22 +148,54 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Stats Overview (placeholder for future) */}
-      <div className="mt-8 p-6 rounded-lg bg-primary-800/50 border border-primary-700/50">
-        <h3 className="text-lg font-medium text-gray-300 mb-4">Quick Stats</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: "Pitchers", value: "—" },
-            { label: "Total Pitches", value: "—" },
-            { label: "Seasons", value: "2015-2025" },
-            { label: "Last Updated", value: "—" },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <p className="text-2xl font-bold text-white">{stat.value}</p>
-              <p className="text-gray-500 text-sm">{stat.label}</p>
+      {/* Stats Overview */}
+      <div className="rounded-lg p-4 border-2 border-[#E1C825]" style={{ backgroundColor: '#D9D8D8' }}>
+        <h3 className="font-bold mb-4 text-black">Database Stats</h3>
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : error ? (
+          <div className="text-center py-4">
+            <p className="text-red-400 text-sm">{error}</p>
+            <p className="text-gray-400 text-xs mt-1">Make sure the API is running</p>
+          </div>
+        ) : stats ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold" style={{ color: '#183521' }}>{formatNumber(stats.pitchers)}</p>
+              <p className="text-gray-600 text-sm">Pitchers</p>
             </div>
-          ))}
-        </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold" style={{ color: '#183521' }}>{formatNumber(stats.pitches)}</p>
+              <p className="text-gray-600 text-sm">Total Pitches</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold" style={{ color: '#183521' }}>
+                {stats.years.length > 0 ? stats.years.join(", ") : "—"}
+              </p>
+              <p className="text-gray-600 text-sm">Seasons</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold" style={{ color: '#183521' }}>{formatDate(stats.last_updated)}</p>
+              <p className="text-gray-600 text-sm">Last Updated</p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: "Pitchers", value: "—" },
+              { label: "Total Pitches", value: "—" },
+              { label: "Seasons", value: "—" },
+              { label: "Last Updated", value: "—" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <p className="text-2xl font-bold" style={{ color: '#183521' }}>{stat.value}</p>
+                <p className="text-gray-600 text-sm">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

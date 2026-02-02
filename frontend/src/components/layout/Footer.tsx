@@ -1,17 +1,13 @@
 export function Footer() {
   return (
-    <footer className="bg-primary-900 border-t border-primary-700">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-gray-500 text-sm">
+    <footer className="px-4 pb-4 mt-4">
+      <div className="container mx-auto">
+        <div className="rounded-lg p-4 border-t" style={{ borderColor: '#E1C825' }}>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-gray-400 text-sm">
             <p>Data powered by Statcast via pybaseball</p>
-          </div>
-          <div className="text-gray-500 text-sm text-center md:text-right">
             <p>
               Built by{" "}
-              <span className="text-accent">Robert Stock</span>
-              {" • "}
-              <span className="text-gray-400">Stockyard Baseball Co.</span>
+              <span className="font-medium" style={{ color: '#E1C825' }}>Robert Stock</span>
             </p>
           </div>
         </div>

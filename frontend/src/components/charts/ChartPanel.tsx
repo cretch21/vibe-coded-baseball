@@ -22,16 +22,19 @@ export function ChartPanel({
   children,
   className,
 }: ChartPanelProps) {
-  const [showExplanation, setShowExplanation] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(true);
 
   return (
-    <div className={cn("rounded-lg bg-primary-800 border border-primary-700", className)}>
+    <div
+      className={cn("rounded-lg border-2", className)}
+      style={{ backgroundColor: '#D9D8D8', borderColor: '#E1C825' }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-primary-700">
+      <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: '#E1C825' }}>
         <div>
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
+          <h3 className="text-lg font-semibold text-black">{title}</h3>
           {description && (
-            <p className="text-gray-400 text-sm mt-1">{description}</p>
+            <p className="text-gray-600 text-sm mt-1">{description}</p>
           )}
         </div>
         {explanation && (
@@ -40,9 +43,10 @@ export function ChartPanel({
             className={cn(
               "p-2 rounded-lg transition-colors",
               showExplanation
-                ? "bg-accent text-primary-900"
-                : "bg-primary-700 text-gray-400 hover:text-white"
+                ? "text-black"
+                : "bg-white text-gray-600 hover:bg-gray-100"
             )}
+            style={showExplanation ? { backgroundColor: '#E1C825' } : {}}
             title="Show explanation"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,7 +64,7 @@ export function ChartPanel({
       {/* Content area */}
       <div className="flex">
         {/* Chart */}
-        <div className={cn("flex-1 p-4", showExplanation && "border-r border-primary-700")}>
+        <div className={cn("flex-1 p-4", showExplanation && "border-r")} style={showExplanation ? { borderColor: '#E1C825' } : {}}>
           {children}
         </div>
 
@@ -68,16 +72,16 @@ export function ChartPanel({
         {showExplanation && explanation && (
           <div className="w-72 p-4 text-sm space-y-4">
             <div>
-              <h4 className="text-accent font-medium mb-1">What You&apos;re Looking At</h4>
-              <p className="text-gray-400">{explanation.whatItShows}</p>
+              <h4 className="font-medium mb-1" style={{ color: '#183521' }}>What You&apos;re Looking At</h4>
+              <p className="text-gray-600">{explanation.whatItShows}</p>
             </div>
             <div>
-              <h4 className="text-accent font-medium mb-1">How to Read It</h4>
-              <p className="text-gray-400">{explanation.howToRead}</p>
+              <h4 className="font-medium mb-1" style={{ color: '#183521' }}>How to Read It</h4>
+              <p className="text-gray-600">{explanation.howToRead}</p>
             </div>
             <div>
-              <h4 className="text-accent font-medium mb-1">Why It Matters</h4>
-              <p className="text-gray-400">{explanation.whyItMatters}</p>
+              <h4 className="font-medium mb-1" style={{ color: '#183521' }}>Why It Matters</h4>
+              <p className="text-gray-600">{explanation.whyItMatters}</p>
             </div>
           </div>
         )}

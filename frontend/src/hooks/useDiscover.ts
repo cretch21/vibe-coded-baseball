@@ -37,6 +37,23 @@ export function useCorrelations(params: {
 }
 
 /**
+ * Hook to get correlation rankings for a target stat.
+ */
+export function useCorrelationRankings(params: {
+  target_stat: string;
+  year?: number;
+  is_starter?: boolean;
+  min_innings?: number;
+}) {
+  return useQuery({
+    queryKey: ["discover", "correlation-rankings", params],
+    queryFn: () => discoverApi.getCorrelationRankings(params),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: !!params.target_stat,
+  });
+}
+
+/**
  * Hook to get stickiness rankings.
  */
 export function useStickiness(params?: {

@@ -451,6 +451,43 @@ class CorrelationService:
 
         return results
 
+    def get_correlation_rankings(
+        self,
+        target_stat: str,
+        year: Optional[int] = None,
+        is_starter: Optional[bool] = None,
+        min_innings: float = 50.0,
+    ) -> list:
+        """Get all stats ranked by correlation with a target stat."""
+        results = []
+
+        for stat_id in STAT_CONFIGS.keys():
+            if stat_id == target_stat:
+                continue
+
+            correlation = self.compute_correlation(
+                stat_id, target_stat, year, is_starter, min_innings
+            )
+
+            if correlation["sample_size"] >= 10:
+                results.append({
+                    "stat": stat_id,
+                    "stat_name": get_stat_name(stat_id),
+                    "category": get_stat_category(stat_id),
+                    "correlation_r": correlation["correlation_r"],
+                    "r_squared": correlation["r_squared"],
+                    "sample_size": correlation["sample_size"],
+                })
+
+        # Sort by absolute correlation (strongest relationships first)
+        results.sort(key=lambda x: abs(x["correlation_r"]), reverse=True)
+
+        # Add ranks
+        for i, entry in enumerate(results):
+            entry["rank"] = i + 1
+
+        return results
+
     def get_all_predictive_rankings(
         self,
         target_stat: str = "era",

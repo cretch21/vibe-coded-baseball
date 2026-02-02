@@ -85,6 +85,29 @@ async def get_correlations(
     )
 
 
+@router.get("/correlation-rankings")
+async def get_correlation_rankings(
+    target_stat: str = Query(..., description="Target statistic (Y-axis)"),
+    year: Optional[int] = Query(None, description="Season year (None for all years)"),
+    is_starter: Optional[bool] = Query(None, description="Filter by starter/reliever"),
+    min_innings: float = Query(50.0, ge=0, description="Minimum innings pitched"),
+    db: Session = Depends(get_db),
+):
+    """
+    Get all stats ranked by their correlation with a target stat.
+
+    Returns stats sorted by absolute correlation strength (strongest first).
+    """
+    service = CorrelationService(db)
+    results = service.get_correlation_rankings(target_stat, year, is_starter, min_innings)
+
+    return {
+        "target_stat": target_stat,
+        "target_stat_name": get_stat_name(target_stat),
+        "entries": results,
+    }
+
+
 @router.get("/stickiness", response_model=StickinessResponse)
 async def get_stickiness(
     is_starter: Optional[bool] = Query(None, description="Filter by starter/reliever"),

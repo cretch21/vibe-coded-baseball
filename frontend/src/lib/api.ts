@@ -190,6 +190,32 @@ export const discoverApi = {
   },
 
   /**
+   * Get correlation rankings for a target stat.
+   */
+  getCorrelationRankings: (params: {
+    target_stat: string;
+    year?: number;
+    is_starter?: boolean;
+    min_innings?: number;
+  }): Promise<{ target_stat: string; target_stat_name: string; entries: Array<{
+    rank: number;
+    stat: string;
+    stat_name: string;
+    category: string;
+    correlation_r: number;
+    r_squared: number;
+    sample_size: number;
+  }>}> => {
+    const searchParams = new URLSearchParams();
+    searchParams.set("target_stat", params.target_stat);
+    if (params.year) searchParams.set("year", params.year.toString());
+    if (params.is_starter !== undefined) searchParams.set("is_starter", params.is_starter.toString());
+    if (params.min_innings) searchParams.set("min_innings", params.min_innings.toString());
+
+    return fetchApi(`/api/discover/correlation-rankings?${searchParams}`);
+  },
+
+  /**
    * Get stickiness rankings.
    */
   getStickiness: (params?: {
@@ -246,5 +272,27 @@ export const discoverApi = {
 export const healthApi = {
   check: (): Promise<{ status: string; service: string }> => {
     return fetchApi("/health");
+  },
+};
+
+/**
+ * Database stats API
+ */
+export interface DatabaseStats {
+  pitchers: number;
+  pitches: number;
+  games: number;
+  min_date: string | null;
+  max_date: string | null;
+  years: number[];
+  last_updated: string | null;
+}
+
+export const statsApi = {
+  /**
+   * Get overall database statistics.
+   */
+  getDatabase: (): Promise<DatabaseStats> => {
+    return fetchApi("/api/stats/database");
   },
 };

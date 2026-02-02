@@ -1,41 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import { useDiscoverStats, useCorrelations } from "@/hooks";
+import { useDiscoverStats, useCorrelations, useCorrelationRankings } from "@/hooks";
+import { cn } from "@/lib/utils";
 import { ChartPanel } from "@/components/charts/ChartPanel";
 import { ScatterPlot } from "@/components/charts/ScatterPlot";
-import { cn } from "@/lib/utils";
-
-type PitcherFilter = "all" | "starters" | "relievers";
-
 export function CorrelationsTab() {
   const [statX, setStatX] = useState("avg_velocity");
   const [statY, setStatY] = useState("whiff_pct");
-  const [pitcherFilter, setPitcherFilter] = useState<PitcherFilter>("all");
   const [minInnings, setMinInnings] = useState(50);
-
-  const isStarter = pitcherFilter === "all" ? undefined : pitcherFilter === "starters";
 
   const { data: stats } = useDiscoverStats();
   const { data: correlation, isLoading, error } = useCorrelations({
     stat_x: statX,
     stat_y: statY,
-    is_starter: isStarter,
+    min_innings: minInnings,
+  });
+
+  const { data: rankings, isLoading: rankingsLoading } = useCorrelationRankings({
+    target_stat: statY,
     min_innings: minInnings,
   });
 
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="p-4 rounded-lg bg-primary-800 border border-primary-700">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="p-4 rounded-lg border-2" style={{ backgroundColor: '#D9D8D8', borderColor: '#E1C825' }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* X-Axis Stat Selector */}
           <div>
-            <label className="block text-sm text-gray-400 mb-2">X-Axis Stat</label>
+            <label className="block text-sm text-gray-700 mb-2">X-Axis Stat</label>
             <select
               value={statX}
               onChange={(e) => setStatX(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg bg-primary-900 border border-primary-700 text-white focus:outline-none focus:border-accent"
+              className="w-full px-3 py-2 rounded-lg bg-white border text-gray-900 focus:outline-none"
+              style={{ borderColor: '#E1C825' }}
             >
               {stats?.map((stat) => (
                 <option key={stat.id} value={stat.id}>
@@ -52,11 +51,12 @@ export function CorrelationsTab() {
 
           {/* Y-Axis Stat Selector */}
           <div>
-            <label className="block text-sm text-gray-400 mb-2">Y-Axis Stat</label>
+            <label className="block text-sm text-gray-700 mb-2">Y-Axis Stat</label>
             <select
               value={statY}
               onChange={(e) => setStatY(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg bg-primary-900 border border-primary-700 text-white focus:outline-none focus:border-accent"
+              className="w-full px-3 py-2 rounded-lg bg-white border text-gray-900 focus:outline-none"
+              style={{ borderColor: '#E1C825' }}
             >
               {stats?.map((stat) => (
                 <option key={stat.id} value={stat.id}>
@@ -71,30 +71,9 @@ export function CorrelationsTab() {
             </select>
           </div>
 
-          {/* Pitcher Type Filter */}
-          <div>
-            <label className="block text-sm text-gray-400 mb-2">Pitcher Type</label>
-            <div className="flex rounded-lg overflow-hidden border border-primary-700">
-              {(["all", "starters", "relievers"] as PitcherFilter[]).map((opt) => (
-                <button
-                  key={opt}
-                  onClick={() => setPitcherFilter(opt)}
-                  className={cn(
-                    "flex-1 px-3 py-2 text-sm transition-colors capitalize",
-                    pitcherFilter === opt
-                      ? "bg-accent text-primary-900 font-medium"
-                      : "bg-primary-900 text-gray-400 hover:text-white"
-                  )}
-                >
-                  {opt === "all" ? "All" : opt === "starters" ? "SP" : "RP"}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Minimum Innings */}
           <div>
-            <label className="block text-sm text-gray-400 mb-2">
+            <label className="block text-sm text-gray-700 mb-2">
               Min IP: {minInnings}
             </label>
             <input
@@ -104,7 +83,8 @@ export function CorrelationsTab() {
               step={10}
               value={minInnings}
               onChange={(e) => setMinInnings(parseInt(e.target.value, 10))}
-              className="w-full h-2 bg-primary-900 rounded-lg appearance-none cursor-pointer accent-accent"
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              style={{ accentColor: '#E1C825' }}
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
               <span>20</span>
@@ -174,11 +154,107 @@ export function CorrelationsTab() {
 
       {/* Regression Equation */}
       {correlation && (
-        <div className="p-4 rounded-lg bg-primary-800/50 border border-primary-700/50">
-          <div className="text-sm text-gray-400 mb-1">Regression Equation</div>
-          <div className="text-lg font-mono text-white">{correlation.regression.equation}</div>
+        <div className="p-4 rounded-lg border-2" style={{ backgroundColor: '#D9D8D8', borderColor: '#E1C825' }}>
+          <div className="text-sm text-gray-600 mb-1">Regression Equation</div>
+          <div className="text-lg font-mono text-black">{correlation.regression.equation}</div>
         </div>
       )}
+
+      {/* Correlation Rankings Table */}
+      <div className="p-4 rounded-lg border-2" style={{ backgroundColor: '#D9D8D8', borderColor: '#E1C825' }}>
+        <h3 className="text-lg font-semibold text-black mb-3">
+          Stats Most Correlated with {rankings?.target_stat_name ?? statY}
+        </h3>
+        <p className="text-gray-600 text-sm mb-4">
+          Rankings of all stats by how strongly they correlate with the selected Y-axis stat.
+          Click any row to view that correlation.
+        </p>
+
+        {rankingsLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : rankings && rankings.entries.length > 0 ? (
+          <div className="overflow-x-auto rounded-lg border-2" style={{ borderColor: '#E1C825' }}>
+            <table className="w-full">
+              <thead style={{ backgroundColor: '#183521' }}>
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 w-16">
+                    Rank
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">
+                    Statistic
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 w-28">
+                    Category
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium w-24" style={{ color: '#E1C825' }}>
+                    r
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-300 w-24">
+                    R²
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-300 w-20">
+                    n
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y" style={{ backgroundColor: '#D9D8D8' }}>
+                {rankings.entries.map((entry) => (
+                  <tr
+                    key={entry.stat}
+                    onClick={() => setStatX(entry.stat)}
+                    className={cn(
+                      "hover:bg-gray-200 transition-colors cursor-pointer",
+                      entry.stat === statX && "bg-yellow-100"
+                    )}
+                  >
+                    <td className="px-4 py-3">
+                      <span
+                        className={cn(
+                          "inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold",
+                          entry.rank === 1 && "bg-yellow-500/30 text-yellow-700",
+                          entry.rank === 2 && "bg-gray-400/30 text-gray-600",
+                          entry.rank === 3 && "bg-amber-700/30 text-amber-800",
+                          entry.rank > 3 && "text-gray-600"
+                        )}
+                      >
+                        {entry.rank}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-gray-900 font-medium">
+                      {entry.stat_name}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-1 text-xs rounded bg-white text-gray-600 border border-gray-300">
+                        {entry.category}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <span
+                        className={cn(
+                          "font-mono font-medium",
+                          entry.correlation_r > 0 ? "text-green-700" : "text-red-700"
+                        )}
+                      >
+                        {entry.correlation_r > 0 ? "+" : ""}{entry.correlation_r.toFixed(3)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono text-gray-700">
+                      {entry.r_squared.toFixed(3)}
+                    </td>
+                    <td className="px-4 py-3 text-right text-gray-600">
+                      {entry.sample_size}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-gray-500 text-center py-4">No correlation data available</p>
+        )}
+      </div>
     </div>
   );
 }
@@ -193,9 +269,9 @@ function StatCard({
   description: string;
 }) {
   return (
-    <div className="p-4 rounded-lg bg-primary-800 border border-primary-700">
-      <div className="text-sm text-gray-400 mb-1">{label}</div>
-      <div className="text-2xl font-bold text-white font-mono">{value}</div>
+    <div className="p-4 rounded-lg border-2" style={{ backgroundColor: '#D9D8D8', borderColor: '#E1C825' }}>
+      <div className="text-sm text-gray-600 mb-1">{label}</div>
+      <div className="text-2xl font-bold font-mono" style={{ color: '#183521' }}>{value}</div>
       <div className="text-xs text-gray-500 mt-1">{description}</div>
     </div>
   );

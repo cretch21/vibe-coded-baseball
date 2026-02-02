@@ -5,10 +5,12 @@
 :root {
   --primary: #183521;
   --accent: #E1C825;
+  --card: #D9D8D8;
 }
 
 body {
-  @apply bg-primary-900 text-white;
+  background-color: #183521;
+  color: white;
 }
 
 /* Custom scrollbar */
@@ -18,13 +20,66 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-primary-800;
+  background-color: #0f2316;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-primary-600 rounded-full;
+  background-color: #2a4a32;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-primary-500;
+  background-color: #3a5a42;
+}
+
+@layer components {
+  /* Card styles - Stockyard gray */
+  .card {
+    background-color: #D9D8D8;
+    color: black;
+    @apply rounded-lg p-4;
+  }
+
+  .card-dark {
+    background-color: #183521;
+    @apply rounded-lg p-4 text-white;
+  }
+
+  /* Button styles */
+  .btn-primary {
+    background-color: #E1C825;
+    color: black;
+    @apply font-medium px-4 py-2 rounded transition-colors;
+  }
+  .btn-primary:hover {
+    background-color: #c9b120;
+  }
+
+  .btn-secondary {
+    background-color: #D9D8D8;
+    color: black;
+    @apply font-medium px-4 py-2 rounded transition-colors;
+  }
+  .btn-secondary:hover {
+    background-color: #c0bfbf;
+  }
+}
+
+@layer base {
+  /* Input styles */
+  input[type="text"],
+  input[type="search"] {
+    @apply bg-white text-gray-900 rounded px-4 py-2 border border-gray-300 focus:outline-none;
+  }
+  input[type="text"]:focus,
+  input[type="search"]:focus {
+    border-color: #d4a843;
+  }
+
+  select {
+    @apply bg-white text-gray-900 rounded px-4 py-2 border border-gray-300 focus:outline-none;
+  }
+  select:focus {
+    border-color: #d4a843;
+  }
 }

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import pitchers_router, leaderboards_router, discover_router
+from app.api import pitchers_router, leaderboards_router, discover_router, stats_router
 from app.core.database import create_tables
 # Import models to register them with SQLAlchemy
 from app.models import Pitcher, Game, Pitch, SeasonStats  # noqa: F401
@@ -47,3 +47,4 @@ async def root():
 app.include_router(pitchers_router, prefix="/api")
 app.include_router(leaderboards_router, prefix="/api")
 app.include_router(discover_router, prefix="/api")
+app.include_router(stats_router, prefix="/api")

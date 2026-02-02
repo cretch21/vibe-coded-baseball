@@ -60,25 +60,29 @@ def load_statcast_range(start_date: str, end_date: str, session: Session):
 
     print(f"Got {len(df)} pitches")
 
-    # Track unique pitchers and games
-    pitchers_added = set()
+    # Cache pitcher records: mlbam_id -> pitcher database ID
+    pitcher_cache = {}
     games_added = set()
     pitches_added = 0
+
+    # Pre-load existing pitchers into cache
+    existing_pitchers = session.query(Pitcher).all()
+    for p in existing_pitchers:
+        pitcher_cache[p.mlbam_id] = p.id
 
     # Process each pitch
     for _, row in df.iterrows():
         # Add pitcher if not exists
-        pitcher_id = safe_int(row.get('pitcher'))
-        if pitcher_id and pitcher_id not in pitchers_added:
-            existing = session.query(Pitcher).filter_by(mlbam_id=pitcher_id).first()
-            if not existing:
-                pitcher = Pitcher(
-                    mlbam_id=pitcher_id,
-                    name=safe_str(row.get('player_name')) or 'Unknown',
-                    throws=safe_str(row.get('p_throws')),
-                )
-                session.add(pitcher)
-                pitchers_added.add(pitcher_id)
+        pitcher_mlbam = safe_int(row.get('pitcher'))
+        if pitcher_mlbam and pitcher_mlbam not in pitcher_cache:
+            pitcher = Pitcher(
+                mlbam_id=pitcher_mlbam,
+                name=safe_str(row.get('player_name')) or 'Unknown',
+                throws=safe_str(row.get('p_throws')),
+            )
+            session.add(pitcher)
+            session.flush()  # Get the ID immediately
+            pitcher_cache[pitcher_mlbam] = pitcher.id
 
         # Add game if not exists
         game_pk = safe_int(row.get('game_pk'))
@@ -97,19 +101,19 @@ def load_statcast_range(start_date: str, end_date: str, session: Session):
                 session.add(game)
                 games_added.add(game_pk)
 
-        # Get pitcher foreign key
-        pitcher_record = session.query(Pitcher).filter_by(mlbam_id=pitcher_id).first() if pitcher_id else None
+        # Get pitcher foreign key from cache
+        pitcher_db_id = pitcher_cache.get(pitcher_mlbam) if pitcher_mlbam else None
 
         # Add pitch
         game_date = pd.to_datetime(row.get('game_date')).date() if pd.notna(row.get('game_date')) else None
         pitch = Pitch(
-            pitcher_id=pitcher_record.id if pitcher_record else None,
+            pitcher_id=pitcher_db_id,
             game_pk=safe_int(game_pk),
             game_date=game_date,
             game_year=safe_int(row.get('game_year')) or 2025,
             pitch_type=safe_str(row.get('pitch_type')),
             pitch_name=safe_str(row.get('pitch_name')),
-            pitcher_mlbam_id=safe_int(pitcher_id),
+            pitcher_mlbam_id=safe_int(row.get('pitcher')),
             batter_mlbam_id=safe_int(row.get('batter')),
             batter_stand=safe_str(row.get('stand')),
             p_throws=safe_str(row.get('p_throws')),
@@ -165,7 +169,7 @@ def load_statcast_range(start_date: str, end_date: str, session: Session):
             print(f"  Committed {pitches_added} pitches...")
 
     session.commit()
-    print(f"Loaded {pitches_added} pitches, {len(pitchers_added)} pitchers, {len(games_added)} games")
+    print(f"Loaded {pitches_added} pitches, {len(pitcher_cache)} pitchers total, {len(games_added)} games")
     return pitches_added
 
 

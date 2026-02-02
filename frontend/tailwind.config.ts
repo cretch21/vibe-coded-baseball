@@ -9,34 +9,46 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Vibe-Coded Baseball brand colors
+        // Stockyard-style colors
         primary: {
-          DEFAULT: "#183521", // Dark green
-          50: "#f0f5f1",
-          100: "#d9e5dc",
-          200: "#b3cbb9",
-          300: "#8db196",
-          400: "#679773",
-          500: "#417d50",
-          600: "#346440",
-          700: "#274b30",
-          800: "#1a3220",
-          900: "#183521", // Main brand color
-          950: "#0d1a11",
+          DEFAULT: "#183521", // Stockyard dark green
+          50: "#e8f5ed",
+          100: "#d1ebdb",
+          200: "#a3d7b7",
+          300: "#75c393",
+          400: "#47af6f",
+          500: "#2d8b50",
+          600: "#246e40",
+          700: "#1b5130",
+          800: "#183521", // Main background
+          900: "#0f2316",
+          950: "#081209",
         },
         accent: {
-          DEFAULT: "#E1C825", // Gold
-          50: "#fdfce8",
-          100: "#fbf8c4",
-          200: "#f7ef8c",
-          300: "#f3e24a",
-          400: "#e9d11d",
-          500: "#E1C825", // Main accent color
-          600: "#c19b10",
-          700: "#9a7111",
-          800: "#7f5916",
-          900: "#6c4918",
-          950: "#3f270a",
+          DEFAULT: "#E1C825", // Stockyard gold
+          50: "#fefce8",
+          100: "#fdf8c4",
+          200: "#fcf08c",
+          300: "#f9e44a",
+          400: "#E1C825", // Main gold accent
+          500: "#c9b120",
+          600: "#a08c1a",
+          700: "#786814",
+          800: "#50440d",
+          900: "#282207",
+          950: "#141104",
+        },
+        // Card backgrounds (Stockyard gray)
+        card: {
+          DEFAULT: "#D9D8D8",
+          light: "#e8e8e8",
+          dark: "#c0bfbf",
+        },
+        // Selected/active state (tan/beige)
+        selected: {
+          DEFAULT: "#d4c9a8",
+          light: "#e8e0c8",
+          dark: "#c4b590",
         },
       },
       fontFamily: {

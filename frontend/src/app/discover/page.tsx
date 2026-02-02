@@ -42,25 +42,29 @@ export default function DiscoverPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Discover</h1>
-        <p className="text-gray-400">
+      <div className="rounded-lg p-4 mb-6 border-2" style={{ backgroundColor: '#D9D8D8', borderColor: '#E1C825' }}>
+        <h1 className="text-3xl font-bold text-black mb-2">Discover</h1>
+        <p className="text-gray-600">
           Statistical analysis tools for exploring correlations, trends, and predictive metrics.
         </p>
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex flex-wrap border-b border-primary-700 mb-6">
+      <div className="flex flex-wrap mb-6 gap-2">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              "px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap",
+              "px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap rounded border-2",
               activeTab === tab.id
-                ? "text-accent border-b-2 border-accent -mb-px"
-                : "text-gray-400 hover:text-white"
+                ? "text-black"
+                : "bg-white text-gray-700 hover:bg-gray-50"
             )}
+            style={activeTab === tab.id
+              ? { backgroundColor: '#E1C825', borderColor: '#E1C825' }
+              : { borderColor: '#E1C825' }
+            }
           >
             {tab.label}
           </button>

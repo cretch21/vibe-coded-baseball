@@ -72,17 +72,18 @@ async def search_pitchers(
     Search pitchers by name for autocomplete.
 
     Returns a list of matching pitchers sorted by relevance.
-    Matches both full name and partial first/last name.
+    Matches all words in any order (so "robert stock" finds "Stock, Robert").
     """
-    search_term = f"%{q}%"
+    # Split query into words and require all words to match
+    words = q.strip().split()
 
-    pitchers = (
-        db.query(Pitcher)
-        .filter(Pitcher.name.ilike(search_term))
-        .order_by(Pitcher.name)
-        .limit(limit)
-        .all()
-    )
+    query = db.query(Pitcher)
+
+    # Each word must appear somewhere in the name
+    for word in words:
+        query = query.filter(Pitcher.name.ilike(f"%{word}%"))
+
+    pitchers = query.order_by(Pitcher.name).limit(limit).all()
 
     return [PitcherSearchResult.model_validate(p) for p in pitchers]
 

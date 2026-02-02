@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { PitcherSearch } from "@/components/ui/PitcherSearch";
 
 const navLinks = [
   { href: "/", label: "Dashboard" },
@@ -17,40 +16,38 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 bg-primary-900/95 backdrop-blur border-b border-primary-700">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-white">
-              Vibe-Coded
-            </span>
-            <span className="text-xl font-bold text-accent">Baseball</span>
+    <header className="pt-4 px-4">
+      <div className="container mx-auto">
+        {/* Title Card */}
+        <div className="rounded-lg p-4 mb-4 border-2" style={{ backgroundColor: '#D9D8D8', borderColor: '#E1C825' }}>
+          <Link href="/" className="flex items-center justify-center gap-2">
+            <h1 className="text-2xl font-bold" style={{ color: '#183521' }}>
+              Robert Stock's Vibe-Coded Baseball App
+            </h1>
           </Link>
-
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                  pathname === link.href
-                    ? "bg-primary-800 text-accent"
-                    : "text-gray-300 hover:text-white hover:bg-primary-800"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Search */}
-          <div className="w-64">
-            <PitcherSearch />
-          </div>
         </div>
+
+        {/* Navigation */}
+        <nav className="flex flex-wrap items-center justify-center gap-2">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                "px-4 py-2 rounded text-sm font-medium transition-colors border-2",
+                pathname === link.href
+                  ? "text-black"
+                  : "bg-white text-gray-700 hover:bg-gray-50"
+              )}
+              style={pathname === link.href
+                ? { backgroundColor: '#E1C825', borderColor: '#E1C825' }
+                : { borderColor: '#E1C825' }
+              }
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
       </div>
     </header>
   );
